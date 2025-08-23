@@ -40,6 +40,7 @@ export default function Navbar() {
               />
             </div>
             <span className="font-bold bg-clip-text text-transparent bg-black">
+
               VaniSetu
             </span>
           </Link>
