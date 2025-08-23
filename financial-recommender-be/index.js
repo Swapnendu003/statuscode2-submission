@@ -5,6 +5,8 @@ const dataRoutes = require('./routes/dataRoutes');
 const financialRoutes = require('./routes/financialRoutes');
 const productRoutes = require('./routes/productRoutes');
 const advisorRoutes = require('./routes/advisorRoutes');
+const getCallRoutes = require('./routes/getCallRoutes');
+
 
 const bodyParser = require('body-parser');
 
@@ -18,6 +20,7 @@ app.use(bodyParser.json());
 app.use('/api', financialRoutes);
 app.use('/products', productRoutes);
 app.use('/advisor', advisorRoutes);
+app.use('/calls', getCallRoutes);
 
 
 
