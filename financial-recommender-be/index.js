@@ -4,6 +4,7 @@ const connectDatabase = require('./config/database');
 const dataRoutes = require('./routes/dataRoutes');
 const financialRoutes = require('./routes/financialRoutes');
 const productRoutes = require('./routes/productRoutes');
+const advisorRoutes = require('./routes/advisorRoutes');
 
 const bodyParser = require('body-parser');
 
@@ -16,6 +17,8 @@ app.use(bodyParser.json());
 
 app.use('/api', financialRoutes);
 app.use('/products', productRoutes);
+app.use('/advisor', advisorRoutes);
+
 
 
 app.all('/', (req, res) => {
