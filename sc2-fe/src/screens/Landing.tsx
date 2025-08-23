@@ -27,14 +27,6 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/global/Navbar";
 import Threads from "@/components/landing/Threads";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import RotatingText from "@/components/landing/RotatingText";
 import { GradientBars } from "@/components/landing/GradientBg";
@@ -261,168 +253,104 @@ export default function ReachWiseLanding() {
         <ImageCarousel />
       </ContainerScroll>
 
-      {/* Rest of the content */}
-     
-      <div className="relative z-10 container mx-auto px-6 py-16">
-        {/* Feature Cards */}
+      <div className="relative z-10 container mx-auto px-6 py-16 mt-[-10rem]">
+        <div className="max-w-3xl mx-auto mb-16 text-center">
+          <Badge
+            variant="outline"
+            className="mb-4 px-4 py-2 text-sm border-blue-200 text-blue-700 bg-white/80 mx-auto inline-flex items-center"
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            Our Solutions
+          </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            Smart Solutions for Financial Services
+            </h2>
+            <p className="text-gray-600 text-lg leading-relaxed">
+            Our innovative platform helps financial institutions bridge communication gaps 
+            and expand their reach through data-driven insights and multilingual capabilities.
+            </p>
+        </div>
+
         <div className="relative mx-auto mb-16">
-          {/* Threads animated background */}
           <div className="absolute inset-0 z-0 pointer-events-none w-[120%] ml-[-10%] h-full">
             <Threads color={[0.8, 0.4, 0.1]} amplitude={1} distance={0.5} />
           </div>
-          <div className="relative z-10 grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            <Card
-              className="group hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 bg-white/90 hover:bg-orange-50"
-              onClick={() => handleFeatureClick("/dashboard")}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-10 w-10 bg-orange-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform shadow">
-                    <Brain className="h-6 w-6 text-white" />
-                  </div>
-                  <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-xs px-2 py-1">
-                    FinSutra
-                  </Badge>
+          <div className="relative z-10 grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <article className="bg-background flex w-full flex-col items-start justify-start border-4 border-black p-6 shadow-[8px_8px_0_0_#000] transition-shadow duration-300 hover:shadow-[12px_12px_0_0_#000] dark:border-white dark:shadow-[8px_8px_0_0_#fff] dark:hover:shadow-[12px_12px_0_0_#fff] min-h-[450px]"
+              onClick={() => handleFeatureClick("/dashboard")}>
+              <div className="flex flex-col h-full w-full">
+              <div className="mb-4 flex items-center gap-x-2 text-xs">
+                <div className="text-foreground border-2 border-black bg-orange-500 px-3 py-1 font-bold">
+                <Brain className="h-4 w-4" />
                 </div>
-                <CardTitle className="text-xl font-semibold text-gray-800 group-hover:text-orange-600 transition-colors">
-                  Intelligent Product Recommendations
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base leading-relaxed">
-                  AI-powered insights that match suitable banking products to
-                  underserved communities based on their unique needs and
-                  circumstances.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
-                      <Users className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-base">
-                        Community Analysis
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        Deep understanding of rural and urban marginalized
-                        communities&apos; financial needs and preferences.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 bg-green-100 rounded flex items-center justify-center flex-shrink-0">
-                      <Target className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-base">
-                        Precision Targeting
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        Data-driven recommendations that break traditional
-                        banking barriers and reach the unreached.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-base">
-                        Social Impact Metrics
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        Track real impact on financial inclusion and SDG-8
-                        progress in your outreach areas.
-                      </p>
-                    </div>
-                  </div>
+                <div className="border-border text-foreground border-2 bg-orange-500 px-3 py-1 font-bold">
+                FinSutra
                 </div>
-                <div className="bg-orange-50 p-4 rounded border border-orange-100">
-                  <p className="text-gray-700 text-sm font-medium flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-orange-600" />
-                    Designed for banks committed to inclusive growth
-                  </p>
+              </div>
+              <div className="flex flex-col flex-grow">
+                <h3 className="text-foreground text-2xl leading-7 font-black uppercase mb-4">
+                Intelligent Product Recommendations
+                </h3>
+                <p className="text-md border-l-4 border-orange-500 pl-4 leading-6 text-gray-800 mb-6">
+                AI-powered insights that match suitable banking products to
+                underserved communities based on their unique needs and circumstances.
+                </p>
+                <div className="space-y-4">
+                {/* Feature points */}
+                <div className="flex items-start gap-3">
+                  <Users className="h-5 w-5 text-orange-600" />
+                  <p className="text-sm text-gray-700">Deep understanding of rural and urban marginalized communities</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-3">
+                  <Target className="h-5 w-5 text-orange-600" />
+                  <p className="text-sm text-gray-700">Data-driven recommendations that break traditional banking barriers</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <TrendingUp className="h-5 w-5 text-orange-600" />
+                  <p className="text-sm text-gray-700">Track real impact on financial inclusion and SDG-8 progress</p>
+                </div>
+                </div>
+              </div>
+              </div>
+            </article>
 
-            {/* VaniConnect Card */}
-            <Card
-              className="group hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 bg-white/90 hover:bg-green-50"
-              onClick={() => handleFeatureClick("/products")}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-10 w-10 bg-green-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform shadow">
-                    <PhoneCall className="h-6 w-6 text-white" />
-                  </div>
-                  <Badge className="bg-green-100 text-green-700 border-green-200 text-xs px-2 py-1">
-                    VaniConnect
-                  </Badge>
+            <article className="bg-background flex w-full flex-col items-start justify-start border-4 border-black p-6 shadow-[8px_8px_0_0_#000] transition-shadow duration-300 hover:shadow-[12px_12px_0_0_#000] dark:border-white dark:shadow-[8px_8px_0_0_#fff] dark:hover:shadow-[12px_12px_0_0_#fff] min-h-[450px]"
+              onClick={() => handleFeatureClick("/products")}>
+              <div className="flex flex-col h-full w-full">
+              <div className="mb-4 flex items-center gap-x-2 text-xs">
+                <div className="text-foreground border-2 border-black bg-green-500 px-3 py-1 font-bold">
+                <PhoneCall className="h-4 w-4" />
                 </div>
-                <CardTitle className="text-xl font-semibold text-gray-800 group-hover:text-green-600 transition-colors">
-                  Native Language Communication
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base leading-relaxed">
-                  Break down language barriers that prevent millions from
-                  accessing financial services. Communication in their comfort
-                  language builds trust and understanding.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 bg-green-100 rounded flex items-center justify-center flex-shrink-0">
-                      <Languages className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-base">
-                        11+ Indian Languages
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        From Hindi to Tamil, Bengali to Gujarati - speak to
-                        customers in their mother tongue.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 bg-orange-100 rounded flex items-center justify-center flex-shrink-0">
-                      <Heart className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-base">
-                        Inclusive Banking
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        Reach daily wage workers, farmers, small shop owners,
-                        and women entrepreneurs who&apos;ve been left behind.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
-                      <Shield className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-base">
-                        Trust Building
-                      </h4>
-                      <p className="text-gray-600 text-sm">
-                        Cultural sensitivity and local understanding create
-                        lasting banking relationships.
-                      </p>
-                    </div>
-                  </div>
+                <div className="border-border text-foreground border-2 bg-green-500 px-3 py-1 font-bold">
+                VaniConnect
                 </div>
-                <div className="bg-green-50 p-4 rounded border border-green-100">
-                  <p className="text-gray-700 text-sm font-medium flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                    Transforming lives through accessible communication
-                  </p>
+              </div>
+              <div className="flex flex-col flex-grow">
+                <h3 className="text-foreground text-2xl leading-7 font-black uppercase mb-4">
+                Native Language Communication
+                </h3>
+                <p className="text-md border-l-4 border-green-500 pl-4 leading-6 text-gray-800 mb-6">
+                Break down language barriers that prevent millions from accessing financial services. 
+                Communication in their comfort language builds trust and understanding.
+                </p>
+                <div className="space-y-4">
+                {/* Feature points */}
+                <div className="flex items-start gap-3">
+                  <Languages className="h-5 w-5 text-green-600" />
+                  <p className="text-sm text-gray-700">Support for 11+ Indian languages from Hindi to Tamil</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-3">
+                  <Heart className="h-5 w-5 text-green-600" />
+                  <p className="text-sm text-gray-700">Reach daily wage workers, farmers, and small business owners</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Shield className="h-5 w-5 text-green-600" />
+                  <p className="text-sm text-gray-700">Build trust through cultural sensitivity and local understanding</p>
+                </div>
+                </div>
+              </div>
+              </div>
+            </article>
           </div>
         </div>
 

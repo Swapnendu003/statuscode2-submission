@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import Hourglass from "@/components/global/Loader";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import api from "@/services/api";
 
 interface Product {
   name1: string;
@@ -45,12 +46,8 @@ interface RecommendationsData {
 }
 
 async function fetchUserDetails(customerId: string) {
-  const response = await fetch('https://bob-server-side.onrender.com/user/data/custId', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ customerId }),
-  });
-  return response.json();
+    const response = await api.post('/user/data/custId', { customerId });
+    return response.data;
 }
 
 export default function RecommendationsPage() {
@@ -84,14 +81,12 @@ export default function RecommendationsPage() {
       const parsedData = JSON.parse(storedData);
       setData(parsedData);
       
-      // Initialize each customer with their first recommendation expanded (1)
       const initialExpandedState: {[key: string]: number} = {};
       parsedData.recommendations.forEach((rec: CustomerRecommendation) => {
-        initialExpandedState[rec.customer_id] = 1; // Show the first recommendation by default
+        initialExpandedState[rec.customer_id] = 1; 
       });
       setExpandedRecommendations(initialExpandedState);
       
-      // Fetch customer details for all recommendations
       const fetchAllCustomerDetails = async () => {
         const customerDetailsMap: {[key: string]: any} = {};
         
@@ -252,19 +247,15 @@ export default function RecommendationsPage() {
         productDescription: product.description1
       }];
       
-      const response = await fetch('https://bob-server-side.onrender.com/email/send-image-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+    const response = await api.post('/email/send-image-email', payload);
+
       
-      if (!response.ok) {
+      
+      if (response.status !== 200) {
         throw new Error('Failed to send email');
       }
       
-      const result = await response.json();
+      const result = response.data;
       
       toast?.({
         title: "Email Sent Successfully",
