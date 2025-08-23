@@ -1,0 +1,10 @@
+livekit
+python-dotenv==1.0.1
+pymongo==4.6.2
+azure-storage-blob==12.19.0
+requests==2.31.0
+fastapi
+livekit-agents[google]~=1.2
+livekit-agents[openai]~=1.2
+livekit-agents[sarvam]~=1.2
+livekit-agents[silero]~=1.2
