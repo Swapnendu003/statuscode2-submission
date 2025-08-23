@@ -43,6 +43,13 @@ from livekit.plugins import sarvam
 from livekit.plugins import silero  # or another VAD provider
 from livekit.agents import stt
 from livekit.agents import BackgroundAudioPlayer, AudioConfig, BuiltinAudioClip
+from pinecone import Pinecone, ServerlessSpec
+
+pc = Pinecone(
+        api_key=os.environ.get("PINECONE_API_KEY")
+    )
+pinecone_index = pc.Index(os.getenv("PINECONE_INDEX"))
+embedder = OpenAI() 
 
 logger = logging.getLogger("make-call")
 logger.setLevel(logging.INFO)
@@ -59,7 +66,7 @@ class Assistant(Agent):
 
         super().__init__(
             instructions=f"""You are a Veena , Bank Manager from Bank of Status Code 2. Respond in plain text only. Do NOT use any Markdown: no *, **, _, backticks, headings, lists, or code fences. Just unformatted text. You are Veena, Product Manager from Bank of Status Code 2 calling {self.cust_name}. Your task is to engage them in a natural, polite, and persuasive conversation about {self.product_details.get('name1', 'our product')}.
-            If you are unsure or lack knowledge about a question, think and tell the user “I dont know”.Avoid repetition, jargon, or being overly pushy. Encourage next steps.
+            If you are unsure or lack knowledge about a question, think and tell the user “I should lookup”, then call {self.lookup_information_from_pinecone} with the users query. After retrieving context, use it to answer accurately. Avoid repetition, jargon, or being overly pushy. Encourage next steps.
             Talk in {language} only."""
             ,chat_ctx=chat_ctx,
              tts=sarvam.TTS( model="bulbul:v2",
@@ -77,6 +84,32 @@ class Assistant(Agent):
             language=f"""{language}""",
         ),
         )
+
+    @function_tool(name="lookup_information_from_pinecone", description="Retrieve relevant info from vector DB")
+    async def lookup_information_from_pinecone(self, context: RunContext, query: str) -> str:
+        try:
+            translated = GoogleTranslator(source='auto', target='en').translate(query)
+            print(f"Translated to English: {translated}")
+        except Exception as e:
+            logger.error(f"Translation failed: {e}")
+            translated = query
+        response = embedder.embeddings.create(input=translated, model="text-embedding-ada-002")
+        vec = response.data[0].embedding
+        res = pinecone_index.query(vector=vec, top_k=10, include_metadata=True, namespace='axis-products')
+        print(f"Querying Pinecone with vector: {vec[:5]}...")  # Print first 5 elements for brevity
+        print(f"Query response: {res}")
+        texts = [m.metadata.get("text", "") for m in res.matches]
+        print(f"Retrieved {len(texts)} documents from Pinecone for query: {query}")
+        print(f"Documents: {texts}")
+        return "\n\n".join(texts)
+    
+    # async def on_user_turn_completed(self, turn_ctx: ChatContext, new_message: ChatMessage) -> None:
+    #     user_text = new_message.text_content()  # get user text
+    #     info = await self.lookup_info(context=turn_ctx.fnc_ctx, query=user_text)  # use turn_ctx.fnc_ctx
+    #     if info:
+    #         turn_ctx.add_message(role="assistant", content=f"Additional context:\n{info}")
+
+
 
 async def write_transcript(ctx, session=None):
     logger.info("writing transcript")

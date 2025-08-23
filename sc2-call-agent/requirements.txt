@@ -10,3 +10,4 @@ livekit-agents[sarvam]~=1.2
 livekit-agents[silero]~=1.2
 uvicorn
 livekit-plugins-noise-cancellation
+pinecone
