@@ -1,8 +1,10 @@
 import React from 'react'
-
+import ReachWiseLanding from '@/screens/Landing' 
 const page = () => {
   return (
-    <div>Get Started with VaniSetu</div>
+    <>
+      <ReachWiseLanding />
+    </>
   )
 }
 
