@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const connectDatabase = require('./config/database');
 const dataRoutes = require('./routes/dataRoutes');
+const financialRoutes = require('./routes/financialRoutes');
+const productRoutes = require('./routes/productRoutes');
+
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -11,7 +14,8 @@ app.use(cors({ origin: '*' }));
 app.use('/user', dataRoutes);
 app.use(bodyParser.json());
 
-
+app.use('/api', financialRoutes);
+app.use('/products', productRoutes);
 
 
 app.all('/', (req, res) => {
