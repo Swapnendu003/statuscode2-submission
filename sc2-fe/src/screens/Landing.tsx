@@ -146,91 +146,90 @@ export default function ReachWiseLanding() {
       <div className="relative overflow-hidden">
         <GradientBars />
         <div className="relative z-10 container mx-auto px-6">
-          <div className="flex flex-col items-center justify-center mt-16 mb-60">
-            {/* Centered Content */}
+          <div className="flex flex-col items-center justify-center mt-20 mb-60">
             <div className="text-center max-w-3xl">
               <Badge
-                variant="outline"
-                className="mb-5 px-4 py-2 text-sm border-blue-200 text-blue-700 bg-white/80 inline-flex items-center"
+          variant="outline"
+          className="mb-5 px-4 py-2 text-sm border-blue-200 text-blue-700 bg-white/80 inline-flex items-center"
               >
-                <Flag className="h-4 w-4 mr-2" />
-                Supporting SDG-8: Decent Work & Economic Growth
+          <Flag className="h-4 w-4 mr-2" />
+          Supporting SDG-8: Decent Work & Economic Growth
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold mb-5 leading-tight">
-                <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                  Banking for Every Indian
-                </span>{" "}
-                <span className="flex items-center justify-center gap-2 mt-2">
-                  <span>in</span>
-                  <RotatingText
-                    texts={[
-                      "हिन्दी",
-                      "বাংলা",
-                      "தமிழ்",
-                      "తెలుగు",
-                      "मराठी",
-                      "ગુજરાતી",
-                      "ಕನ್ನಡ",
-                      "മലയാളം",
-                    ]}
-                    mainClassName="inline-block px-4 py-2 rounded-lg bg-gradient-to-r from-violet-100 to-blue-100 text-blue-900"
-                    staggerFrom={"last"}
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "-120%" }}
-                    staggerDuration={0.025}
-                    splitLevelClassName="overflow-hidden pb-1"
-                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                    rotationInterval={2000}
-                  />
-                </span>
+              <h1 className="text-4xl md:text-6xl font-bold mb-8 leading-tight">
+          <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            Banking for Every Indian
+          </span>{" "}
+          <span className="flex items-center justify-center gap-2 mt-4">
+            <span>in</span>
+            <RotatingText
+              texts={[
+                "हिन्दी",
+                "বাংলা",
+                "தமிழ்",
+                "తెలుగు",
+                "मराठी",
+                "ગુજરાતી",
+                "ಕನ್ನಡ",
+                "മലയാളം",
+              ]}
+              mainClassName="inline-block px-4 py-2 rounded-lg text-blue-900"
+              staggerFrom={"last"}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-120%" }}
+              staggerDuration={0.025}
+              splitLevelClassName="overflow-hidden pb-1"
+              transition={{ type: "spring", damping: 30, stiffness: 400 }}
+              rotationInterval={2000}
+            />
+          </span>
               </h1>
-              <p className="text-base md:text-lg text-gray-600 mb-6 leading-relaxed max-w-2xl mx-auto">
-                <strong>70% of India&apos;s population</strong> still lacks
-                access to basic financial services. VaniSetu empowers banks to
-                bridge this gap by reaching marginalized communities through
-                intelligent recommendations and native language communication,
-                <strong>
-                  {" "}
-                  making financial inclusion a reality for every Indian.
-                </strong>
+              <p className="text-sm md:text-base text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
+          <strong>70% of India&apos;s population</strong> still lacks
+          access to basic financial services. VaniSetu empowers banks to
+          bridge this gap by reaching marginalized communities through
+          intelligent recommendations and native language communication,
+          <strong>
+            {" "}
+            making financial inclusion a reality for every Indian.
+          </strong>
               </p>
-              <div className="flex flex-wrap gap-3 justify-center mb-7">
-                <Badge
-                  variant="outline"
-                  className="px-4 py-2 text-xs border-violet-200 text-violet-700 bg-white/80"
-                >
-                  <TrendingDown className="h-4 w-4 mr-1" />
-                  85% Fewer Rejected Calls
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="px-4 py-2 text-xs border-blue-200 text-blue-700 bg-white/80"
-                >
-                  <Languages className="h-4 w-4 mr-1" />
-                  11+ Indian Languages
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="px-4 py-2 text-xs border-violet-200 text-violet-700 bg-white/80"
-                >
-                  <Target className="h-4 w-4 mr-1" />
-                  Smart Targeting
-                </Badge>
+              <div className="flex flex-wrap gap-3 justify-center mb-10">
+          <Badge
+            variant="outline"
+            className="px-4 py-2 text-xs border-violet-200 text-violet-700 bg-white/80"
+          >
+            <TrendingDown className="h-4 w-4 mr-1" />
+            85% Fewer Rejected Calls
+          </Badge>
+          <Badge
+            variant="outline"
+            className="px-4 py-2 text-xs border-blue-200 text-blue-700 bg-white/80"
+          >
+            <Languages className="h-4 w-4 mr-1" />
+            11+ Indian Languages
+          </Badge>
+          <Badge
+            variant="outline"
+            className="px-4 py-2 text-xs border-violet-200 text-violet-700 bg-white/80"
+          >
+            <Target className="h-4 w-4 mr-1" />
+            Smart Targeting
+          </Badge>
               </div>
-              <div className="flex gap-6 justify-center">
-                <CTAButton
-                  text="Start with FinSutra"
-                  variant="primary"
-                  icon={<ArrowRight className="h-5 w-5" />}
-                  onClick={() => handleFeatureClick("/dashboard")}
-                />
-                <CTAButton
-                  text="Explore VaniConnect"
-                  variant="secondary"
-                  icon={<PhoneCall className="h-5 w-5" />}
-                  onClick={() => handleFeatureClick("/products")}
-                />
+              <div className="flex gap-6 justify-center mt-4">
+          <CTAButton
+            text="Start with FinSutra"
+            variant="primary"
+            icon={<ArrowRight className="h-5 w-5" />}
+            onClick={() => handleFeatureClick("/dashboard")}
+          />
+          <CTAButton
+            text="Explore VaniConnect"
+            variant="secondary"
+            icon={<PhoneCall className="h-5 w-5" />}
+            onClick={() => handleFeatureClick("/products")}
+          />
               </div>
             </div>
           </div>
@@ -240,7 +239,7 @@ export default function ReachWiseLanding() {
       {/* Add this section before the Feature Cards section */}
       <ContainerScroll
         titleComponent={
-          <div className="max-w-3xl mx-auto mb-8 mt-[-15%]">
+          <div className="max-w-3xl mx-auto mb-8 ">
             <Badge
               variant="outline"
               className="mb-4 px-4 py-2 text-sm border-blue-200 text-blue-700 bg-white/80 mx-auto"
@@ -432,6 +431,3 @@ export default function ReachWiseLanding() {
     </div>
   );
 }
-
-
-/*Commit */
