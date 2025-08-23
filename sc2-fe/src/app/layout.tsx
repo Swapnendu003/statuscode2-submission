@@ -4,8 +4,8 @@ import { GeistSans } from "geist/font/sans";
 
 
 export const metadata: Metadata = {
-  title: "My App",
-  description: "…",
+  title: "VaniSetu",
+  description: "",
 };
 
 export default function RootLayout({
