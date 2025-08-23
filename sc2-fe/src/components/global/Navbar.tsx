@@ -39,7 +39,7 @@ export default function Navbar() {
                 unoptimized={true}
               />
             </div>
-            <span className="font-bold bg-clip-text text-transparent text-black">
+            <span className="font-bold bg-clip-text text-transparent bg-black">
               VaniSetu
             </span>
           </Link>
