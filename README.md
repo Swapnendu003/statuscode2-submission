@@ -63,10 +63,9 @@ Modern, responsive web application providing intuitive dashboards for financial 
 - **Framework**: Next.js 14 with TypeScript
 - **Styling**: Tailwind CSS + Radix UI Components
 - **State Management**: React Hooks
-- **Charts**: Recharts for data visualization
-- **Animations**: Framer Motion, GSAP
+- **Animations**: Framer Motion
 - **HTTP Client**: Axios
-- **Form Handling**: React Hook Form + Zod validation
+- **Form Handling**: React Hook Form
 
 ### **Implementation Features**
 - **📊 Customer Dashboard**: View and analyze customer profiles with comprehensive filtering
