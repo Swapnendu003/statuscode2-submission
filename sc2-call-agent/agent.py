@@ -45,6 +45,91 @@ from livekit.agents import stt
 from livekit.agents import BackgroundAudioPlayer, AudioConfig, BuiltinAudioClip
 from pinecone import Pinecone, ServerlessSpec
 
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+# Google Calendar setup
+SCOPES = ['https://www.googleapis.com/auth/calendar']
+
+def get_google_calendar_service():
+    """Get Google Calendar service with authentication"""
+    creds = None
+    # The file token.json stores the user's access and refresh tokens.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    
+    return build('calendar', 'v3', credentials=creds)
+
+def create_calendar_event(service, customer_name, phone_number, product_name, preferred_time=None, language='en'):
+    """Create a calendar event for follow-up call"""
+    try:
+        # Default to next business day at 10 AM if no preferred time
+        if not preferred_time:
+            now = datetime.now()
+            # Add 1 day and set to 10 AM
+            event_time = (now + timedelta(days=1)).replace(hour=10, minute=0, second=0, microsecond=0)
+        else:
+            event_time = preferred_time
+        
+        # Calculate end time (30 minutes later)
+        end_time = event_time + timedelta(minutes=30)
+        
+        # Event details
+        event = {
+            'summary': f'Follow-up Call: {customer_name} - {product_name}',
+            'description': f'''
+Follow-up call scheduled with customer:
+- Customer Name: {customer_name}
+- Phone Number: {phone_number}
+- Product Interest: {product_name}
+- Language: {language}
+- Scheduled via AI Agent
+            '''.strip(),
+            'start': {
+                'dateTime': event_time.isoformat(),
+                'timeZone': 'Asia/Kolkata',  # Adjust timezone as needed
+            },
+            'end': {
+                'dateTime': end_time.isoformat(),
+                'timeZone': 'Asia/Kolkata',
+            },
+            'attendees': [
+                # Add your email here
+                {'email': 'your-email@company.com'},
+            ],
+            'reminders': {
+                'useDefault': False,
+                'overrides': [
+                    {'method': 'email', 'minutes': 24 * 60},  # 1 day before
+                    {'method': 'popup', 'minutes': 15},       # 15 minutes before
+                ],
+            },
+        }
+        
+        # Insert the event
+        event_result = service.events().insert(calendarId='primary', body=event).execute()
+        return event_result
+        
+    except HttpError as error:
+        logging.error(f'An error occurred while creating calendar event: {error}')
+        return None
+
+
 # Load .env values
 load_dotenv()
 env = dotenv_values(".env")
@@ -76,11 +161,18 @@ class Assistant(Agent):
         self.cust_details = cust_details or {}
         self.product_details = product_details or {}
         self.language = language 
-
+        try:
+            self.calendar_service = get_google_calendar_service()
+        except Exception as e:
+            logger.error(f"Failed to initialize Google Calendar service: {e}")
+            self.calendar_service = None
         super().__init__(
-            instructions=f"""You are a Veena , Bank Manager from Bank of Status Code 2. Respond in plain text only. Do NOT use any Markdown: no *, **, _, backticks, headings, lists, or code fences. Just unformatted text. You are Veena, Product Manager from Bank of Status Code 2 calling {self.cust_name}. Your task is to engage them in a natural, polite, and persuasive conversation about {self.product_details.get('name1', 'our product')}.
+            instructions=f"""You are a Ring , Bank Manager from Bank of RCC. Respond in plain text only. Do NOT use any Markdown: no *, **, _, backticks, headings, lists, or code fences. Just unformatted text. You are Ring, Product Manager from Bank of RCC calling {self.cust_name}. Your task is to engage them in a natural, polite, and persuasive conversation about {self.product_details.get('name', 'our product')}.
             If you are unsure or lack knowledge about a question, think and tell the user “I should lookup”, then call {self.lookup_information_from_pinecone} with the users query. After retrieving context, use it to answer accurately. Avoid repetition, jargon, or being overly pushy. Encourage next steps.
-            Talk in {language} only.""",
+             IMPORTANT: If the customer says they are busy, not interested right now, or wants to talk later, use the {self.schedule_followup_call} function to schedule a follow-up call. Also use this function if the customer shows interest and wants to continue the conversation later.
+            When scheduling a call, ask the customer for their preferred time (day and time) and use that information when calling the scheduling function.
+            
+Talk in {language} only.""",
             chat_ctx=chat_ctx,
             tts=sarvam.TTS( model="bulbul:v2",
       target_language_code=f"{language}",
@@ -121,6 +213,123 @@ class Assistant(Agent):
     #     info = await self.lookup_info(context=turn_ctx.fnc_ctx, query=user_text)  # use turn_ctx.fnc_ctx
     #     if info:
     #         turn_ctx.add_message(role="assistant", content=f"Additional context:\n{info}")
+
+    @function_tool(name="schedule_followup_call", description="Schedule a follow-up call in Google Calendar when customer is busy or interested")
+    async def schedule_followup_call(self, context: RunContext, preferred_day: str = "", preferred_time: str = "", reason: str = "follow-up") -> str:
+        """
+        Schedule a follow-up call in Google Calendar
+        
+        Args:
+            preferred_day: Customer's preferred day (e.g., "tomorrow", "Monday", "next week")
+            preferred_time: Customer's preferred time (e.g., "10 AM", "2 PM", "morning")
+            reason: Reason for scheduling (e.g., "busy", "interested", "needs more time")
+        """
+        try:
+            if not self.calendar_service:
+                return "I apologize, but I'm unable to schedule the call right now due to a technical issue. I'll make sure someone from our team contacts you soon."
+            
+            # Parse preferred time
+            event_time = None
+            now = datetime.now()
+            try:
+                preferred_day = GoogleTranslator(source='auto', target='en').translate(preferred_day)
+                preferred_time = GoogleTranslator(source='auto', target='en').translate(preferred_time)
+                print(f"Translated to English: {preferred_day}, {preferred_time}")
+            except Exception as e:
+                logger.error(f"Translation failed: {e}")
+                preferred_day = preferred_day
+                preferred_time = preferred_time
+
+            # Simple time parsing logic (you can enhance this)
+            if preferred_day.lower() in ['tomorrow', 'next day']:
+                event_time = now + timedelta(days=1)
+            elif preferred_day.lower() in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
+                # Find next occurrence of that weekday
+                days_ahead = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].index(preferred_day.lower()) - now.weekday()
+                if days_ahead <= 0:  # Target day already happened this week
+                    days_ahead += 7
+                event_time = now + timedelta(days=days_ahead)
+            elif 'next week' in preferred_day.lower():
+                event_time = now + timedelta(days=7)
+            else:
+                # Default to next business day
+                event_time = now + timedelta(days=1)
+            
+            # Parse preferred time
+            if 'morning' in preferred_time.lower():
+                event_time = event_time.replace(hour=10, minute=0, second=0, microsecond=0)
+            elif 'afternoon' in preferred_time.lower():
+                event_time = event_time.replace(hour=14, minute=0, second=0, microsecond=0)
+            elif 'evening' in preferred_time.lower():
+                event_time = event_time.replace(hour=17, minute=0, second=0, microsecond=0)
+            elif any(time_str in preferred_time.upper() for time_str in ['10', '11', '12', '1', '2', '3', '4', '5']):
+                # Extract hour from time string
+                import re
+                hour_match = re.search(r'(\d{1,2})', preferred_time)
+                if hour_match:
+                    hour = int(hour_match.group(1))
+                    if 'PM' in preferred_time.upper() and hour != 12:
+                        hour += 12
+                    elif 'AM' in preferred_time.upper() and hour == 12:
+                        hour = 0
+                    event_time = event_time.replace(hour=hour, minute=0, second=0, microsecond=0)
+            else:
+                # Default to 10 AM
+                event_time = event_time.replace(hour=10, minute=0, second=0, microsecond=0)
+            
+            # Create the calendar event
+            product_name = self.product_details.get('name1', 'Banking Product')
+            event_result = create_calendar_event(
+                self.calendar_service,
+                self.cust_name,
+                self.phone_number,
+                product_name,
+                event_time,
+                self.language
+            )
+            
+            if event_result:
+                # Store scheduling info in MongoDB
+                self.store_scheduling_info(event_result, reason, preferred_day, preferred_time)
+                
+                formatted_time = event_time.strftime("%A, %B %d at %I:%M %p")
+                return f"Perfect! I've scheduled a follow-up call for {formatted_time}. You'll receive a reminder, and our team will call you at {self.phone_number}. Thank you for your time today!"
+            else:
+                return "I've noted your preference for a follow-up call. Our team will contact you within the next 2 business days to schedule a convenient time."
+                
+        except Exception as e:
+            logger.error(f"Error scheduling follow-up call: {e}")
+            return "I've noted your request for a follow-up call. Our team will contact you soon to arrange a convenient time."
+    
+    def store_scheduling_info(self, event_result, reason, preferred_day, preferred_time):
+        """Store scheduling information in MongoDB"""
+        try:
+            client = pymongo.MongoClient("mongodb+srv://swapsb003:swappy@cluster0.rqewtye.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+            db = client["test"]
+            collection = db["scheduled_calls"]
+            
+            scheduling_record = {
+                "customer_name": self.cust_name,
+                "phone_number": self.phone_number,
+                "customer_details": self.cust_details,
+                "product_details": self.product_details,
+                "language": self.language,
+                "calendar_event_id": event_result.get('id'),
+                "calendar_event_link": event_result.get('htmlLink'),
+                "scheduled_time": event_result.get('start', {}).get('dateTime'),
+                "reason": reason,
+                "preferred_day": preferred_day,
+                "preferred_time": preferred_time,
+                "created_at": datetime.now().isoformat(),
+                "status": "scheduled"
+            }
+            
+            collection.insert_one(scheduling_record)
+            logger.info(f"Stored scheduling info for {self.cust_name}")
+            
+        except Exception as e:
+            logger.error(f"Error storing scheduling info: {e}")
+
 
 TRANSCRIPT_PATH = os.getenv("TRANSCRIPT_PATH", "/tmp/sc2/file.json")  # portable default
 
