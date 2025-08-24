@@ -28,7 +28,7 @@ from livekit.agents import get_job_context
 import json
 load_dotenv()
 import random
-import os
+import os, json, base64
 import logging
 import pymongo
 from bson import ObjectId
@@ -56,24 +56,33 @@ SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def get_google_calendar_service():
     """Get Google Calendar service with authentication"""
-    creds = None
-    # The file token.json stores the user's access and refresh tokens.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # creds = None
+    # # The file token.json stores the user's access and refresh tokens.
+    # if os.path.exists('token.json'):
+    #     creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+    # # If there are no (valid) credentials available, let the user log in.
+    # if not creds or not creds.valid:
+    #     if creds and creds.expired and creds.refresh_token:
+    #         creds.refresh(Request())
+    #     else:
+    #         flow = InstalledAppFlow.from_client_secrets_file(
+    #             'credentials.json', SCOPES)
+    #         creds = flow.run_local_server(port=0)
+    #     # Save the credentials for the next run
+    #     with open('token.json', 'w') as token:
+    #         token.write(creds.to_json())
     
+    # return build('calendar', 'v3', credentials=creds)
+    tok_b64 = os.getenv("GOOGLE_OAUTH_TOKEN_B64")
+    if not tok_b64:
+        raise RuntimeError("GOOGLE_OAUTH_TOKEN_B64 not set")
+    tok = json.loads(base64.b64decode(tok_b64).decode("utf-8"))
+    creds = Credentials.from_authorized_user_info(tok, SCOPES)
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
     return build('calendar', 'v3', credentials=creds)
+
 
 def create_calendar_event(service, customer_name, phone_number, product_name, preferred_time=None, language='en'):
     """Create a calendar event for follow-up call"""
@@ -145,9 +154,20 @@ embedder = None
 
 def _init_clients(env):
     global pinecone_index, embedder
-    pc = Pinecone(api_key=env.get("PINECONE_API_KEY"))
-    pinecone_index = pc.Index(env.get("PINECONE_INDEX"))
-    embedder = OpenAI(api_key=env.get("OPENAI_API_KEY"))
+    # pc = Pinecone(api_key=env.get("PINECONE_API_KEY"))
+    # pinecone_index = pc.Index(env.get("PINECONE_INDEX"))
+    # embedder = OpenAI(api_key=env.get("OPENAI_API_KEY"))
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if openai_key:
+        embedder = OpenAI(api_key=openai_key)
+
+    # Pinecone (optional: only if both API key & index are set)
+    pc_key = os.getenv("PINECONE_API_KEY")
+    pc_index_name = os.getenv("PINECONE_INDEX")
+    if pc_key and pc_index_name:
+        pc = Pinecone(api_key=pc_key)  
+        pinecone_index = pc.Index(pc_index_name)
+
 
 logger = logging.getLogger("make-call")
 logger.setLevel(logging.INFO)
@@ -177,7 +197,7 @@ Talk in {language} only.""",
             tts=sarvam.TTS( model="bulbul:v2",
       target_language_code=f"{language}",
       speaker="manisha",
-      api_key=env.get("SARVAM_API_KEY"),enable_preprocessing=True,
+      api_key=os.getenv("SARVAM_API_KEY"),enable_preprocessing=True,
    ), llm=openai.LLM(
         model="gpt-4o-mini",
         temperature=0.4,
@@ -185,7 +205,7 @@ Talk in {language} only.""",
     ),
     stt=sarvam.STT(
             model="saarika:v2.5",
-            api_key=env.get("SARVAM_API_KEY"),
+            api_key=os.getenv("SARVAM_API_KEY"),
             language=f"""{language}""",
         ),
         )
@@ -513,8 +533,8 @@ async def entrypoint(ctx: JobContext):
         lambda: asyncio.create_task(on_shutdown(egress_id, cust_name, phone_number, cust_details, product_details, language_call))
     )
 
-    token = api.AccessToken(env.get('LIVEKIT_API_KEY'),
-                        env.get('LIVEKIT_API_SECRET')) \
+    token = api.AccessToken(os.getenv('LIVEKIT_API_KEY'),
+                        os.getenv('LIVEKIT_API_SECRET')) \
     .with_identity("identity") \
     .with_name("name") \
     .with_grants(api.VideoGrants(
@@ -599,7 +619,7 @@ Talk in {language_call} only.
         tts=sarvam.TTS(
       target_language_code=language_call,
       speaker="manisha",
-      api_key=env.get("SARVAM_API_KEY"),
+      api_key=os.getenv("SARVAM_API_KEY"),
       enable_preprocessing=True,
    ), 
         llm=openai.LLM(
@@ -609,7 +629,7 @@ Talk in {language_call} only.
         stt = sarvam.STT(
         language=language_call,
         model="saarika:v2.5",
-        api_key=env.get("SARVAM_API_KEY"),
+        api_key=os.getenv("SARVAM_API_KEY"),
         
     ),
     turn_detection="vad",

@@ -3,8 +3,8 @@ ARG PYTHON_VERSION=3.11.6
 FROM python:${PYTHON_VERSION}-slim
 
 # cache-busting ref you can pass per build (e.g., git SHA)
-ARG APP_REF=dev
-ENV APP_REF=${APP_REF}
+# ARG APP_REF=dev
+# ENV APP_REF=${APP_REF}
 
 # no buffered logs
 ENV PYTHONUNBUFFERED=1 \
