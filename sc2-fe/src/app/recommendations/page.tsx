@@ -337,7 +337,7 @@ export default function RecommendationsPage() {
         },
       };
       
-      const response = await fetch('http://0.0.0.0:8000/create-dispatch', {
+      const response = await fetch('https://statuscode2-submission-1.onrender.com/create-dispatch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
