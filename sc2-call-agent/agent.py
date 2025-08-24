@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 from livekit import agents
 from livekit import rtc, api
 from livekit.agents import (
@@ -45,11 +45,24 @@ from livekit.agents import stt
 from livekit.agents import BackgroundAudioPlayer, AudioConfig, BuiltinAudioClip
 from pinecone import Pinecone, ServerlessSpec
 
-pc = Pinecone(
-        api_key=os.environ.get("PINECONE_API_KEY")
-    )
-pinecone_index = pc.Index(os.getenv("PINECONE_INDEX"))
-embedder = OpenAI() 
+# Load .env values
+load_dotenv()
+env = dotenv_values(".env")
+
+# pc = Pinecone(
+#         api_key=env.get("PINECONE_API_KEY")
+#     )
+# pinecone_index = pc.Index(env.get("PINECONE_INDEX"))
+# embedder = OpenAI(api_key=env.get("OPENAI_API_KEY"))
+
+pinecone_index = None
+embedder = None
+
+def _init_clients(env):
+    global pinecone_index, embedder
+    pc = Pinecone(api_key=env.get("PINECONE_API_KEY"))
+    pinecone_index = pc.Index(env.get("PINECONE_INDEX"))
+    embedder = OpenAI(api_key=env.get("OPENAI_API_KEY"))
 
 logger = logging.getLogger("make-call")
 logger.setLevel(logging.INFO)
@@ -67,12 +80,12 @@ class Assistant(Agent):
         super().__init__(
             instructions=f"""You are a Veena , Bank Manager from Bank of Status Code 2. Respond in plain text only. Do NOT use any Markdown: no *, **, _, backticks, headings, lists, or code fences. Just unformatted text. You are Veena, Product Manager from Bank of Status Code 2 calling {self.cust_name}. Your task is to engage them in a natural, polite, and persuasive conversation about {self.product_details.get('name1', 'our product')}.
             If you are unsure or lack knowledge about a question, think and tell the user “I should lookup”, then call {self.lookup_information_from_pinecone} with the users query. After retrieving context, use it to answer accurately. Avoid repetition, jargon, or being overly pushy. Encourage next steps.
-            Talk in {language} only."""
-            ,chat_ctx=chat_ctx,
-             tts=sarvam.TTS( model="bulbul:v2",
+            Talk in {language} only.""",
+            chat_ctx=chat_ctx,
+            tts=sarvam.TTS( model="bulbul:v2",
       target_language_code=f"{language}",
       speaker="manisha",
-      api_key=os.getenv("SARVAM_API_KEY"),enable_preprocessing=True,
+      api_key=env.get("SARVAM_API_KEY"),enable_preprocessing=True,
    ), llm=openai.LLM(
         model="gpt-4o-mini",
         temperature=0.4,
@@ -80,7 +93,7 @@ class Assistant(Agent):
     ),
     stt=sarvam.STT(
             model="saarika:v2.5",
-            api_key=os.getenv("SARVAM_API_KEY"),
+            api_key=env.get("SARVAM_API_KEY"),
             language=f"""{language}""",
         ),
         )
@@ -109,23 +122,25 @@ class Assistant(Agent):
     #     if info:
     #         turn_ctx.add_message(role="assistant", content=f"Additional context:\n{info}")
 
+TRANSCRIPT_PATH = os.getenv("TRANSCRIPT_PATH", "/tmp/sc2/file.json")  # portable default
+
+def _ensure_parent(path: str) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
 
 
-async def write_transcript(ctx, session=None):
+async def write_transcript(ctx, session=None, path: str = TRANSCRIPT_PATH):
     logger.info("writing transcript")
-    current_date = datetime.now().strftime("%Y%m%d_%H%M%S")
-    logger.info(f"current date: {current_date}")
-    # This example writes to the temporary directory, but you can save to any location
-    filename = f"C:/Users/sagni/OneDrive/Desktop/statuscode/statuscode2-submission/sc2-call-agent/file.json"
-    logger.info(f"filename: {filename}")
-    
-    # Only write if session exists and has history
-    if session and hasattr(session, 'history'):
-        with open(filename, 'w') as f:
-            json.dump(session.history.to_dict(), f, indent=2)
-        logger.info(f"Transcript for {ctx.room.name} saved to {filename}")
-    else:
-        logger.info(f"No session history available yet for {ctx.room.name}")
+    logger.info(f"target transcript path: {path}")
+    try:
+        _ensure_parent(path)
+        if session and hasattr(session, "history"):
+            with open(path, "w") as f:
+                json.dump(session.history.to_dict(), f, indent=2)
+            logger.info(f"Transcript for {ctx.room.name} saved to {path}")
+        else:
+            logger.info(f"No session history available yet for {ctx.room.name}")
+    except Exception as e:
+        logger.exception(f"Failed to write transcript to {path}: {e}")
 
 async def start_room_egress(ctx):
     """Start room composite egress to record the call conversation."""
@@ -231,7 +246,7 @@ async def transcribe_segments(record_id: str, language_call):
         return
     
     # Path to the file.json
-    json_file_path = "C:/Users/sagni/OneDrive/Desktop/statuscode/statuscode2-submission/sc2-call-agent/file.json"
+    json_file_path = "/tmp/sc2/file.json"
     
     try:
         # Check if the file exists
@@ -272,6 +287,7 @@ async def on_shutdown(egress_id, cust_name, phone_number, cust_details, product_
     )
 
 async def entrypoint(ctx: JobContext):
+    _init_clients(env) 
     logger.info(f"connecting to room {ctx.room.name}")
 
     await ctx.connect()
@@ -288,8 +304,8 @@ async def entrypoint(ctx: JobContext):
         lambda: asyncio.create_task(on_shutdown(egress_id, cust_name, phone_number, cust_details, product_details, language_call))
     )
 
-    token = api.AccessToken(os.getenv('LIVEKIT_API_KEY'),
-                        os.getenv('LIVEKIT_API_SECRET')) \
+    token = api.AccessToken(env.get('LIVEKIT_API_KEY'),
+                        env.get('LIVEKIT_API_SECRET')) \
     .with_identity("identity") \
     .with_name("name") \
     .with_grants(api.VideoGrants(
@@ -374,7 +390,7 @@ Talk in {language_call} only.
         tts=sarvam.TTS(
       target_language_code=language_call,
       speaker="manisha",
-      api_key=os.getenv("SARVAM_API_KEY"),
+      api_key=env.get("SARVAM_API_KEY"),
       enable_preprocessing=True,
    ), 
         llm=openai.LLM(
@@ -384,7 +400,7 @@ Talk in {language_call} only.
         stt = sarvam.STT(
         language=language_call,
         model="saarika:v2.5",
-        api_key=os.getenv("SARVAM_API_KEY"),
+        api_key=env.get("SARVAM_API_KEY"),
         
     ),
     turn_detection="vad",
@@ -413,7 +429,7 @@ Talk in {language_call} only.
             api.CreateSIPParticipantRequest(
                 room_name=ctx.room.name,
                 
-                sip_trunk_id='ST_AqWgcFX7wWR3',
+                sip_trunk_id='ST_GPHeuKAmga99',
                 
                 sip_call_to=phone_number,
                 participant_identity=sip_participant_identity,

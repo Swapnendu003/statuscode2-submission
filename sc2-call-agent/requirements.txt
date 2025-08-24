@@ -11,3 +11,4 @@ livekit-agents[silero]~=1.2
 uvicorn
 livekit-plugins-noise-cancellation
 pinecone
+deep-translator
