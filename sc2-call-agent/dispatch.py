@@ -12,11 +12,19 @@ app = FastAPI()
 room_name = "my-room"
 
 # Configure CORS properly - move it before any routes
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # You can replace * with specific origins
+#     allow_credentials=True,
+#     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+#     allow_headers=["*"],
+#     expose_headers=["*"],
+# )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can replace * with specific origins
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=["*"],  # try setting specific domains later
+    allow_credentials=False,
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
