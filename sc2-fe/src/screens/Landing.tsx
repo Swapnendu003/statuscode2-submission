@@ -25,7 +25,7 @@ import {
   Star,
   Flag,
 } from "lucide-react";
-import Navbar from "@/components/global/Navbar";
+import LandingNavbar from "@/components/landing/LandingNavbar";
 import Threads from "@/components/landing/Threads";
 import TeamsSection from "@/components/landing/TeamsSection";
 import { Badge } from "@/components/ui/badge";
@@ -133,9 +133,9 @@ export default function ReachWiseLanding() {
 
   return (
     <div className="min-h-screen relative">
-      <Navbar />
+      <LandingNavbar />
 
-      <div className="relative overflow-hidden">
+      <div id="hero" className="relative overflow-hidden pt-20">
         <GradientBars />
         <div className="relative z-10 container mx-auto px-6">
           <div className="flex flex-col items-center justify-center mt-20 mb-60">
@@ -230,31 +230,33 @@ export default function ReachWiseLanding() {
       </div>
 
       {/* Add this section before the Feature Cards section */}
-      <ContainerScroll
-        titleComponent={
-          <div className="max-w-3xl mx-auto mb-8 ">
-            <Badge
-              variant="outline"
-              className="mb-4 px-4 py-2 text-sm border-blue-200 text-blue-700 bg-white/80 mx-auto"
-            >
-              <HandHeart className="h-4 w-4 mr-2" />
-              The Challenge We&apos;re Solving
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              Breaking Barriers in Indian Banking
-            </h2>
-            <p className="text-gray-600 text-lg leading-relaxed">
-              Witness how VaniSetu is transforming lives by making banking
-              accessible to millions of underserved Indians through innovative
-              technology and cultural understanding.
-            </p>
-          </div>
-        }
-      >
-        <ImageCarousel />
-      </ContainerScroll>
+      <div id="challenges">
+        <ContainerScroll
+          titleComponent={
+            <div className="max-w-3xl mx-auto mb-8 ">
+              <Badge
+                variant="outline"
+                className="mb-4 px-4 py-2 text-sm border-blue-200 text-blue-700 bg-white/80 mx-auto"
+              >
+                <HandHeart className="h-4 w-4 mr-2" />
+                The Challenge We&apos;re Solving
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+                Breaking Barriers in Indian Banking
+              </h2>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Witness how VaniSetu is transforming lives by making banking
+                accessible to millions of underserved Indians through innovative
+                technology and cultural understanding.
+              </p>
+            </div>
+          }
+        >
+          <ImageCarousel />
+        </ContainerScroll>
+      </div>
 
-      <div className="relative z-10 container mx-auto px-6 py-16 mt-[-10rem]">
+      <div id="solutions" className="relative z-10 container mx-auto px-6 py-16 mt-[-10rem]">
         <div className="max-w-3xl mx-auto mb-16 text-center">
           <Badge
             variant="outline"
@@ -378,8 +380,11 @@ export default function ReachWiseLanding() {
             </article>
           </div>
         </div>
-        <TeamsSection />
+        <div id="team">
+          <TeamsSection />
+        </div>
       </div>
+      
       <footer className="w-full py-8 mt-16 border-t border-gray-100">
         <div className="container mx-auto px-6">
           <div className="flex flex-col items-center">
