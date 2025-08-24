@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/global/Navbar";
 import Threads from "@/components/landing/Threads";
+import TeamsSection from "@/components/landing/TeamsSection";
 import { Badge } from "@/components/ui/badge";
 import RotatingText from "@/components/landing/RotatingText";
 import { GradientBars } from "@/components/landing/GradientBg";
@@ -354,6 +355,8 @@ export default function ReachWiseLanding() {
           </div>
         </div>
 
+        {/* Team Section */}
+        <TeamsSection />
 
       </div>
     </div>
