@@ -27,32 +27,33 @@ const defaultMembers: TeamMember[] = [
     name: 'SAGNIK DATTA',
     role: 'ML AND GEN AI ENGINEER',
     imageUrl:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=400&auto=format&fit=crop',
+      'https://i.postimg.cc/zB2bS1F7/IMG-6199.jpg',
     socialLinks: [
       { platform: 'linkedin', url: 'https://linkedin.com' },
       { platform: 'twitter', url: 'https://twitter.com' },
       { platform: 'github', url: 'https://github.com/sagnik-datta-02' },
     ],
   },
-  {
-    name: 'SWAPNENDU BANERJEE',
-    role: 'FULL STACK DEVELOPER',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400&h=400&auto=format&fit=crop',
-    socialLinks: [
-      { platform: 'github', url: 'https://github.com/Swapnendu003' },
-      { platform: 'linkedin', url: 'https://www.linkedin.com/in/swapnendu-banerjee-36ba06219/' },
-      { platform: 'twitter', url: 'https://twitter.com' },
-    ],
-  },
+  
   {
     name: 'ADRITA CHAKRABORTY',
     role: 'BACKEND DEVELOPER',
     imageUrl:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&h=400&auto=format&fit=crop',
+      'https://i.postimg.cc/cJhj1Ddw/Whats-App-Image-2025-07-15-at-11-10-47.jpg',
     socialLinks: [
       { platform: 'linkedin', url: 'https://www.linkedin.com/in/adrita-chakraborty-ba9b2a24b/' },
       { platform: 'github', url: 'https://github.com/ADRITA-art' },
+    ],
+  },
+  {
+    name: 'SWAPNENDU BANERJEE',
+    role: 'FULL STACK DEVELOPER',
+    imageUrl:
+      'https://i.postimg.cc/W3yLw9Fg/IMG-6211.jpg',
+    socialLinks: [
+      { platform: 'github', url: 'https://github.com/Swapnendu003' },
+      { platform: 'linkedin', url: 'https://www.linkedin.com/in/swapnendu-banerjee-36ba06219/' },
+      { platform: 'twitter', url: 'https://twitter.com' },
     ],
   },
 ];
@@ -66,12 +67,11 @@ export default function Team2({
   return (
     <section
       className={cn(
-        'relative w-full overflow-hidden py-16 md:py-24 bg-gray-50',
+        'relative w-full overflow-hidden py-16 md:py-24',
         className,
       )}
     >
       <div className="container mx-auto px-6">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
