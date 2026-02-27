@@ -21,11 +21,11 @@ async def main():
   livekit_api = api.LiveKitAPI()
 
   trunk = SIPOutboundTrunkInfo(
-    name = "Test trunk",
-    address = "new-02.pstn.twilio.com",
-    numbers = ['+15418349832'],
-    auth_username = "cse2022044",
-    auth_password = "Password@123"
+    name = "DEMO",
+    address = "ring-demo.pstn.twilio.com",
+    numbers = ['+18302560737'],
+    auth_username = "swaps",
+    auth_password = "Swapnendu2003@"
   )
 
   request = CreateSIPOutboundTrunkRequest(

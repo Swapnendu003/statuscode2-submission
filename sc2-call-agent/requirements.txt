@@ -12,7 +12,7 @@ uvicorn
 livekit-plugins-noise-cancellation
 pinecone
 deep-translator
-google-api-python-client
+google-api-python-client==2.101.0
 google-auth-httplib2
 google-auth-oauthlib
 
